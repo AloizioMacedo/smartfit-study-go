@@ -1,6 +1,11 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"html/template"
+	"smartfit/locations"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Results struct {
 	Results []Result
@@ -10,7 +15,7 @@ type Result struct {
 	OpenClass    string
 	OpenedStatus string
 	Title        string
-	Address      string
+	Address      template.HTML
 	Prohibs      []Prohib
 	Schedules    []Schedule
 }
@@ -31,34 +36,46 @@ func index(c *gin.Context) {
 
 func clean(c *gin.Context) {
 	c.HTML(200, "results.html", Results{[]Result{}})
+
+}
+
+func parse_locations(locations []locations.Location) Results {
+	var results []Result
+
+	for _, location := range locations {
+		var schedules []Schedule
+
+		for _, schedule := range location.Schedules {
+			schedules = append(schedules, Schedule{
+				Weekdays: schedule.Weekdays,
+				Hour:     schedule.Hour,
+			})
+		}
+
+		results = append(results, Result{
+			OpenClass:    "Closed",
+			OpenedStatus: "Closed",
+			Title:        location.Title,
+			Address:      template.HTML(location.Content),
+			Prohibs: []Prohib{
+				{
+					ProhibSource: "Closed",
+					Alt:          "Closed",
+				},
+			},
+			Schedules: schedules,
+		})
+	}
+
+	return Results{Results: results}
 }
 
 func results(c *gin.Context) {
 	// day_period := c.Query("day_period")
 	// show_closed := c.DefaultQuery("show_closed", "false")
+	locations := locations.GetLocations()
 
-	c.HTML(200, "results.html", Results{
-		Results: []Result{
-			{
-				OpenClass:    "closed",
-				OpenedStatus: "Closed",
-				Title:        "Closed",
-				Address:      "Closed",
-				Prohibs: []Prohib{
-					{
-						ProhibSource: "Closed",
-						Alt:          "Closed",
-					},
-				},
-				Schedules: []Schedule{
-					{
-						Weekdays: "Closed",
-						Hour:     "Closed",
-					},
-				},
-			},
-		},
-	})
+	c.HTML(200, "results.html", parse_locations(locations))
 }
 
 func main() {
