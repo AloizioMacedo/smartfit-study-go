@@ -65,6 +65,7 @@ func main() {
 	r := gin.Default()
 	r.StaticFile("style.css", "./templates/style.css")
 	r.Static("images", "./templates/images")
+	r.Static("fonts", "./templates/fonts")
 
 	r.LoadHTMLGlob("templates/*.html")
 	r.GET("/", index)
