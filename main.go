@@ -29,6 +29,10 @@ func index(c *gin.Context) {
 	c.HTML(200, "index.html", nil)
 }
 
+func clean(c *gin.Context) {
+	c.HTML(200, "results.html", Results{[]Result{}})
+}
+
 func results(c *gin.Context) {
 	// day_period := c.Query("day_period")
 	// show_closed := c.DefaultQuery("show_closed", "false")
@@ -65,6 +69,7 @@ func main() {
 	r.LoadHTMLGlob("templates/*.html")
 	r.GET("/", index)
 	r.GET("/results", results)
+	r.GET("/clean", clean)
 
 	r.Run()
 }
