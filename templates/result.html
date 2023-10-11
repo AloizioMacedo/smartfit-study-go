@@ -1,0 +1,33 @@
+{{ range $result := .Results}}
+<li class="result">
+  <p class="{{$result.OpenClass}}">
+    <strong>{{$result.OpenedStatus}}</strong>
+  </p>
+  <h1>{{$result.Title}}</h1>
+  <p class="address">{{$result.Address}}</p>
+  <hr class="address-division" />
+  <ul class="prohibs">
+    {{ range $prohib := $result.Prohibs }}
+    <li>
+      <img
+        src="{{$prohib.ProhibSource}}"
+        alt="{{$prohib.Alt}}"
+        width="60px"
+        height="60px"
+      />
+    </li>
+    {{ end }}
+  </ul>
+  <ul class="times-available">
+    {{ range $schedule := $result.Schedules }}
+    <li>
+      <h2>{{$schedule.Weekdays}}</h2>
+      <p>{{$schedule.Hour}}</p>
+    </li>
+    {{ end }}
+  </ul>
+</li>
+{{ end }}
+<strong class="number-of-results" id="number-of-results" hx-swap-oob="true"
+  >{{len .Results}}</strong
+>
