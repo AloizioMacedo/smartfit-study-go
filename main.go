@@ -109,11 +109,41 @@ func parse_locations(locations []locations.Location) Results {
 }
 
 func results(c *gin.Context) {
-	// day_period := c.Query("day_period")
-	// show_closed := c.DefaultQuery("show_closed", "false")
-	locations := locations.GetLocations()
+	day_period := c.Query("day_period")
+	show_closed_str := c.DefaultQuery("show_closed", "off")
 
-	c.HTML(200, "results.html", parse_locations(locations))
+	var show_closed bool
+	if show_closed_str == "on" {
+		show_closed = true
+	} else {
+		show_closed = false
+	}
+
+	var lower_bound_hr, lower_bound_min, upper_bound_hr, upper_bound_min int
+	if day_period == "morning" {
+		lower_bound_hr = 6
+		lower_bound_min = 0
+
+		upper_bound_hr = 12
+		upper_bound_min = 0
+	} else if day_period == "afternoon" {
+		lower_bound_hr = 12
+		lower_bound_min = 1
+
+		upper_bound_hr = 18
+		upper_bound_min = 0
+	} else if day_period == "evening" {
+		lower_bound_hr = 18
+		lower_bound_min = 1
+
+		upper_bound_hr = 23
+		upper_bound_min = 0
+	}
+
+	locs := locations.GetLocations()
+	locs = locations.FilterLocations(locs, lower_bound_hr, lower_bound_min, upper_bound_hr, upper_bound_min, show_closed)
+
+	c.HTML(200, "results.html", parse_locations(locs))
 }
 
 func main() {
